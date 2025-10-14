@@ -1,0 +1,264 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AI Estimator by GelatoConnect — ROI Calculator</title>
+  <style>
+    :root{
+      --bg:#FAF6EF;
+      --card:#E5DECF;
+      --text:#000;
+      --muted:#333;
+      --brand:#000;
+      --accent:#FFD869;
+      --white:#fff;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--text);
+      font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,'Helvetica Neue',Arial;line-height:1.45}
+    .wrap{max-width:1100px;margin:0 auto;padding:24px}
+    .header{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-bottom:18px}
+    .logo{width:36px;height:36px;border-radius:8px;background:var(--brand);
+      display:inline-flex;align-items:center;justify-content:center;color:var(--white);font-weight:800}
+    h1{font-size:1.35rem;margin:0}
+    .sub{color:var(--muted);font-size:.95rem}
+    .grid{display:grid;grid-template-columns:1fr;gap:16px}
+    @media(min-width:960px){.grid{grid-template-columns:1.05fr .95fr;}}
+    .card{background:var(--card);border:1px solid rgba(0,0,0,0.08);border-radius:16px;padding:16px}
+    .card h2{margin:.1rem 0 .8rem;font-size:1rem}
+    label{display:block;font-weight:600;margin:.5rem 0 .35rem}
+    input[type="number"], select{width:100%;padding:12px 14px;border-radius:10px;border:1px solid rgba(0,0,0,0.12);
+      background:var(--white);color:var(--text);outline:none;font-size:0.98rem}
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .small{font-size:.84rem}
+    .muted{color:var(--muted)}
+    .hr{height:1px;background:rgba(0,0,0,.08);margin:12px 0}
+    /* Results visuals */
+    .kpis{display:grid;grid-template-columns:1fr;gap:12px;margin-top:6px}
+    @media(min-width:760px){.kpis{grid-template-columns:1fr 1fr}}
+    .kpi{
+      background:var(--white);
+      border:1px solid rgba(0,0,0,.08);
+      border-radius:14px;
+      padding:14px;
+      position:relative;
+      overflow:hidden;
+    }
+    .kpi .title{color:var(--muted);font-size:.88rem;margin-bottom:4px}
+    .kpi .value{font-size:1.5rem;font-weight:900;letter-spacing:.2px}
+    .kpi .delta{
+      background:var(--accent);
+      color:#000;
+      font-weight:800;
+      border-radius:999px;
+      display:inline-block;
+      padding:3px 8px;
+      font-size:.78rem;
+      margin-top:6px;
+    }
+    .bar{height:12px;border-radius:999px;background:rgba(0,0,0,.08);overflow:hidden;margin-top:8px}
+    .bar span{display:block;height:100%;background:var(--accent)}
+    .split{display:flex;gap:8px;margin-top:6px}
+    .chip{flex:1;background:#FFF7D1;border:1px solid #F2D25E;border-radius:10px;padding:8px 10px;text-align:center;font-weight:800}
+    .footer{margin-top:16px;color:var(--muted);font-size:.85rem}
+    .cta-row{margin-top:12px; display:flex; justify-content:flex-end}
+    .btn{background:var(--accent);color:#000;border:none;padding:12px 16px;border-radius:12px;font-weight:800;cursor:pointer;text-decoration:none}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="header">
+      <div class="logo">GC</div>
+      <div>
+        <h1>AI Estimator by GelatoConnect — ROI Calculator</h1>
+        <div class="sub">See how much time and margin you could reclaim by automating quotes with AI.</div>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="card left">
+        <h2>1) Your numbers</h2>
+
+        <div class="row">
+          <div>
+            <label for="currency">Currency</label>
+            <select id="currency">
+              <option value="EUR" selected>€ EUR (Europe)</option>
+              <option value="USD">$ USD (United States)</option>
+            </select>
+          </div>
+          <div>
+            <label for="quotesPerWeek">Quote requests per week</label>
+            <input id="quotesPerWeek" type="number" min="1" step="1" value="300"/>
+          </div>
+        </div>
+
+        <div class="row">
+          <div>
+            <label for="estimators">Full-time estimators</label>
+            <input id="estimators" type="number" min="1" step="1" value="4"/>
+          </div>
+          <div>
+            <label for="annualSalary">Annual salary per estimator (<span id="salarySymbol">€</span>)</label>
+            <input id="annualSalary" type="number" min="0" step="500" value="65000"/>
+          </div>
+        </div>
+
+        <div class="row">
+          <div>
+            <label for="winRate">Win rate (%)</label>
+            <input id="winRate" type="number" min="0" max="100" step="1" value="50"/>
+          </div>
+          <div>
+            <label for="avgJobValue">Average job value (<span id="jobSymbol">€</span>)</label>
+            <input id="avgJobValue" type="number" min="0" step="10" value="500"/>
+          </div>
+        </div>
+
+        <div class="hr"></div>
+        <div class="small muted">Assumptions: 80% of quotes in 5 min; +10% win-rate (relative); +5% revenue uplift; 40h work week.</div>
+      </div>
+
+      <div class="card right">
+        <h2>2) Your results</h2>
+
+        <div class="kpis">
+          <div class="kpi">
+            <div class="title">Annual value of time freed</div>
+            <div class="value" id="valueFreed">€130,000</div>
+            <div class="split">
+              <div class="chip"><span id="hoursPerYear">3,950</span> hrs/yr</div>
+              <div class="chip"><span id="fteFreed">2.0</span> FTE</div>
+            </div>
+          </div>
+
+          <div class="kpi">
+            <div class="title">Avg time per quote (minutes)</div>
+            <div class="value"><span id="avgTimeNow">64.0</span> → <span id="avgTimeAI">16.8</span></div>
+            <div class="bar"><span id="barTimeAI" style="width:30%"></span></div>
+            <div class="delta" id="deltaTime">~74% faster</div>
+          </div>
+
+          <div class="kpi">
+            <div class="title">Estimator hours / week</div>
+            <div class="value"><span id="hrsNow">160</span> → <span id="hrsAI">84</span></div>
+            <div class="bar"><span id="barHrsAI" style="width:40%"></span></div>
+            <div class="delta">Saved: <span id="hrsSaved">76</span> hrs/week</div>
+          </div>
+
+          <div class="kpi">
+            <div class="title">Win rate</div>
+            <div class="value"><span id="winNow">50</span>% → <span id="winAI">55</span>%</div>
+            <div class="delta">+10% relative</div>
+          </div>
+
+          <div class="kpi">
+            <div class="title">Annual revenue uplift</div>
+            <div class="value" id="revUplift">€0</div>
+            <div class="delta">Includes +10% win-rate & +5% uplift</div>
+          </div>
+        </div>
+
+        <div class="cta-row">
+          <a id="roiCta" class="btn" href="#" target="_blank" rel="noopener">Book a personalized ROI discussion →</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">
+      <div class="hr"></div>
+      <div>© GelatoConnect • AI Estimator ROI Calculator</div>
+    </div>
+  </div>
+
+<script>
+(function(){
+  const $ = id => document.getElementById(id);
+  const clamp = (n, min, max) => Math.min(max, Math.max(min, n));
+  const oneDec = n => Math.round(n * 10) / 10;
+  const twoDec = n => Math.round(n * 100) / 100;
+
+  // URL params:
+  // ?cc=usd or eur (currency)
+  // ?cta=<URL> (CTA link target)
+  const params = new URLSearchParams(location.search);
+  const cc = (params.get('cc') || '').toUpperCase();
+  const cta = params.get('cta');
+  if (cta) { try { new URL(cta); $('roiCta').href = cta; } catch(e){} }
+  if (cc === 'USD' || cc === 'EUR') $('currency').value = cc;
+
+  const fields = ["currency","quotesPerWeek","estimators","annualSalary","winRate","avgJobValue"];
+  fields.forEach(id => $(id).addEventListener('input', update));
+
+  function moneyFmtFor(curr){
+    const locale = curr === 'USD' ? 'en-US' : 'en-GB';
+    return new Intl.NumberFormat(locale, { style:'currency', currency: curr, maximumFractionDigits: 0 });
+  }
+  function updateSymbols(curr){
+    $('salarySymbol').textContent = curr === 'USD' ? '$' : '€';
+    $('jobSymbol').textContent = curr === 'USD' ? '$' : '€';
+  }
+  function updateBars(now, ai, elId){
+    const ratio = now > 0 ? Math.max(5, Math.min(100, (ai/now)*100)) : 0;
+    $(elId).style.width = ratio + '%';
+  }
+
+  function update(){
+    const curr = $('currency').value;
+    const moneyFmt = moneyFmtFor(curr);
+    updateSymbols(curr);
+
+    const quotesPerWeek = +$('quotesPerWeek').value || 0;
+    const estimators = Math.max(1, Math.floor(+$('estimators').value || 1)); $('estimators').value = estimators;
+    const annualSalary = Math.max(0, +$('annualSalary').value || 0);
+    const winRate = clamp(+$('winRate').value || 0, 0, 100); $('winRate').value = winRate;
+    const avgJobValue = Math.max(0, +$('avgJobValue').value || 0);
+
+    // Current derived time
+    const quotesPerEstimator = (quotesPerWeek / estimators) || 0.0001;
+    const avgTimeNow = 2400 / quotesPerEstimator; // minutes per quote
+    const hrsNow = (quotesPerWeek * (avgTimeNow/60));
+
+    // With AI
+    const avgTimeAI = (0.8 * 5) + (0.2 * avgTimeNow);
+    const hrsAI = (quotesPerWeek * (avgTimeAI/60));
+    const hrsSaved = Math.max(0, hrsNow - hrsAI);
+    const hoursPerYear = hrsSaved * 52;
+    const fteFreed = hoursPerYear / (40 * 52);
+    const valueFreed = fteFreed * annualSalary;
+
+    // Growth
+    const winAI = Math.min(100, winRate * 1.10);
+    const wonNow = quotesPerWeek * (winRate / 100);
+    const wonAI_base = quotesPerWeek * (winAI / 100);
+    const revNowWeek = wonNow * avgJobValue;
+    const revAIWeekBase = wonAI_base * avgJobValue;
+    const revAIWeek = revAIWeekBase * 1.05;
+    const revUpliftAnnual = Math.max(0, (revAIWeek - revNowWeek) * 52);
+
+    // Write values
+    $('valueFreed').textContent = moneyFmt.format(valueFreed || 0);
+    $('hoursPerYear').textContent = Math.round(hoursPerYear).toString();
+    $('fteFreed').textContent = twoDec(fteFreed).toFixed(2);
+
+    $('avgTimeNow').textContent = oneDec(avgTimeNow).toFixed(1);
+    $('avgTimeAI').textContent = oneDec(avgTimeAI).toFixed(1);
+    $('hrsNow').textContent = Math.round(hrsNow).toString();
+    $('hrsAI').textContent = Math.round(hrsAI).toString();
+    $('hrsSaved').textContent = Math.round(hrsSaved).toString();
+    $('winNow').textContent = winRate.toString();
+    $('winAI').textContent = twoDec(winAI).toFixed(0);
+    $('revUplift').textContent = moneyFmt.format(revUpliftAnnual || 0);
+
+    // Bars
+    updateBars(avgTimeNow, avgTimeAI, 'barTimeAI');
+    updateBars(hrsNow, hrsAI, 'barHrsAI');
+  }
+
+  update();
+})();
+</script>
+</body>
+</html>
